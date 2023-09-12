@@ -6,3 +6,4 @@ asyncpg
 pydantic
 psycopg2-binary
 sqlalchemy_utils
+alembic
