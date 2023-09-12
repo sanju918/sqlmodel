@@ -1,38 +1,40 @@
 import fastapi
-from fastapi import Path, Query
-from app.api.models.user_model import User
-from typing import List, Optional
+from typing import List
+from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException, status
+
+from app.db.db_setup import get_db
+from app.api.utils.users import get_user, get_user_by_email, get_users, create_user
+from app.pydantic_schemas.user import User, UserCreate
 
 router = fastapi.APIRouter()
-
-users = [
-    {
-        "email": "sanjaypatel@walmart.com",
-        "is_active": True,
-        "bio": "I'm a software engineer"
-    },
-    {
-        "email": "bindiyapatel@walmart.com",
-        "is_active": False,
-        "bio": "I'm home maker"
-    }
-]
+db_: Session = Depends(get_db)
 
 
 @router.get("/user", response_model=List[User], tags=["User"])
-async def get_users():
+async def read_users(skip: int = 0, limit: int = 100, db=db_):
+    users = get_users(db, skip=skip, limit=limit)
     return users
 
 
-@router.post("/user", tags=["User"])
-async def create_user(user: User):
-    users.append(user)
-    return {"message": "created user"}
+@router.post("/users", tags=["User"], response_model=User, status_code=201)
+async def create_new_user(user: UserCreate, db=db_):
+    db_user = get_user_by_email(db, email=user.email, )
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Provided Email is not available for use."
+        )
+    return create_user(db, user=user)
 
 
-@router.get("/users/{user_id}", response_model=Optional[dict], tags=["User"])
-async def get_user(
-        user_id: int = Path(..., description="The ID of the user", gt=0, le=2),
-        q: str = Query(max_length=5)
-):
-    return { "user": users[user_id], "Query": q}
+@router.get("/users/{user_id}", tags=["User"])
+async def read_user(user_id: int, db=db_):
+    db_user = get_user(db, user_id)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} doesn't exist."
+        )
+
+    return db_user

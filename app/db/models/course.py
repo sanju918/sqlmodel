@@ -8,7 +8,6 @@ from .user import User
 from .mixins import Timestamp
 
 
-
 class ContentType(enum.Enum):
     lesson = 1
     quiz = 2
@@ -25,8 +24,7 @@ class Course(Timestamp, Base):
 
     created_by = relationship(User)
     sections = relationship("Section", back_populates="course", uselist=False)
-
-    profile = relationship("Profile", back_populates="owner", uselist=False)
+    student_courses = relationship("StudentCourse", back_populates="course")
 
 
 class Section(Timestamp, Base):
