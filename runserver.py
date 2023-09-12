@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from api import generic, users
+from api import generic, users, courses, sections
 
 
 def init_app():
@@ -12,6 +12,8 @@ def init_app():
 app = init_app()
 app.include_router(generic.router)
 app.include_router(users.router)
+app.include_router(courses.router)
+app.include_router(sections.router)
 
 
 def start():
