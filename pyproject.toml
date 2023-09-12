@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "sqlmodel"
+version = "0.1.0"
+description = "tutorial"
+authors = ["sanju918 <42485083+sanju918@users.noreply.github.com>"]
+license = "open source"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+uvicorn = "^0.23.2"
+fastapi = "^0.103.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
