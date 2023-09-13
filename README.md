@@ -16,14 +16,14 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
     ```commandline
     pip install alembic
     ```
-  
+
 - Initialize Alembic
 
     ```commandline
     alembic init app/alembic
     ```
-  
-- Modify `alembic.ini` 
+
+- Modify `alembic.ini`
 
   ```
   # modify the following contents
@@ -31,17 +31,17 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
   prepend_sys_path = app
   sqlalchemy.url = postgresql+psycopg2://postgres:sTr0ngPass1234@localhost:5432/cloudlevel
   ```
-  
+
 - Modify `app/alembic/env.py`
 
   ```python
   # custom import of Models
   from app.db.db_setup import Base
   from app.db.models import user_model, course_model
-  
+
   target_metadata = Base.metadata
   ```
-  
+
 - Run the following command to create a revision
 
   ```commandline
@@ -60,7 +60,7 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
 - You might encounter the following error
   ```commandline
   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.DuplicateObject) type "role" already exists
-  
+
   [SQL: CREATE TYPE role AS ENUM ('teacher', 'student')]
   ```
 - The issue is with the conflicting name `role` under the revision file. In our case we need to comment out this line which is having issue and add additional code.
@@ -69,7 +69,7 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
   ```python
   sa.Column('role', sa.Enum('teacher', 'student', name='role'), nullable=True),
   ```
-  
+
   Fix:
   ```python
   def upgrade() -> None:
@@ -83,13 +83,13 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
                     # sa.Column('role', sa.Enum('teacher', 'student', name='role'), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
-  
+
     # we added these lines of code
     op.add_column(
         "users",
         sa.Column('role', sa.Enum('teacher', 'student', name='role'), nullable=True),
     )
-  
+
   # rest of the codes
   op.create_table('content_blocks',
                     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -146,7 +146,7 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
   # add some imports
   import json
   import os
-  
+
   def upgrade() -> None:
     # add users = op.create_table method
     users = op.create_table('users',
@@ -163,12 +163,12 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
         "users",
         sa.Column('role', sa.Enum('teacher', 'student', name='role'), nullable=True),
     )
-    
+
   # Add these lines of code
     with open(os.path.join(os.path.dirname(__file__), "../data/students.json")) as f:
         student_data = f.read()
     op.bulk_insert(users, json.loads(student_data))
-  
+
   # rest of the code remains as it is
   ```
 - Now run the live migration again `alembic upgrade head`, and this should be successful this time

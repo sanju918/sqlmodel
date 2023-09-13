@@ -51,13 +51,16 @@ class ContentBlock(Timestamp, Base):
     section_id = Column(Integer, ForeignKey("sections.id"), nullable=False)
 
     section = relationship("Section", back_populates="content_blocks")
-    completed_content_blocks = relationship("CompletedContentBlock", back_populates="content_block")
+    completed_content_blocks = relationship(
+        "CompletedContentBlock", back_populates="content_block"
+    )
 
 
 class StudentCourse(Timestamp, Base):
     """
     Students can be assigned to courses.
     """
+
     __tablename__ = "student_courses"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -73,6 +76,7 @@ class CompletedContentBlock(Timestamp, Base):
     """
     This shows when a student has completed a content block.
     """
+
     __tablename__ = "completed_content_blocks"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -83,4 +87,6 @@ class CompletedContentBlock(Timestamp, Base):
     grade = Column(Integer, default=0)
 
     student = relationship(User, back_populates="student_content_blocks")
-    content_block = relationship(ContentBlock, back_populates="completed_content_blocks")
+    content_block = relationship(
+        ContentBlock, back_populates="completed_content_blocks"
+    )

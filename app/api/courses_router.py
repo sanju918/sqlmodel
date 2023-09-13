@@ -30,7 +30,10 @@ async def create_new_course(course: CourseCreate, db_=db):
 async def read_course(course_id: int, db_=db):
     res = get_course(db=db_, course_id=course_id)
     if not res:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requested course do not exist.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requested course do not exist.",
+        )
     return get_course(db=db_, course_id=course_id)
 
 
