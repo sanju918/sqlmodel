@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 
 from app.db.db_setup import get_db
-from app.api.utils.users import get_user, get_user_by_email, get_users, create_user
-from app.pydantic_schemas.user import User, UserCreate
+from app.api.utils.users_crud import get_user, get_user_by_email, get_users, create_user
+from app.api.utils.courses_crud import get_user_courses
+from app.pydantic_schemas.user_schema import User, UserCreate
+from app.pydantic_schemas.course_schema import Course
 
 router = fastapi.APIRouter()
 db_: Session = Depends(get_db)
@@ -38,3 +40,11 @@ async def read_user(user_id: int, db=db_):
         )
 
     return db_user
+
+
+@router.get("/users/{user_id}/courses", response_model=List[Course], tags=["User", "Courses"])
+async def read_user_courses(user_id: int, db=db_):
+    courses = get_user_courses(db=db, user_id=user_id)
+    if not courses:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records for selected user")
+    return courses

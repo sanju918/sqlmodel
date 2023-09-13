@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import URLType
 
 from ..db_setup import Base
-from .user import User
-from .mixins import Timestamp
+from .user_model import User
+from .mixins_model import Timestamp
 
 
 class ContentType(enum.Enum):

@@ -7,7 +7,7 @@ from alembic import context
 
 # custom import of Models
 from app.db.db_setup import Base
-from app.db.models import user, course
+from app.db.models import user_model, course_model
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

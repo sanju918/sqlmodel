@@ -37,7 +37,7 @@ You can find an example of Alembic in a FastAPI project in the templates from [P
   ```python
   # custom import of Models
   from app.db.db_setup import Base
-  from app.db.models import user, course
+  from app.db.models import user_model, course_model
   
   target_metadata = Base.metadata
   ```
