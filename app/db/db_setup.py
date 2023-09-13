@@ -1,16 +1,26 @@
+# for non async
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:sTr0ngPass1234@localhost:5432/cloudlevel"
-# SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:sTr0ngPass1234@localhost:5432/cloudlevel"
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+# for async
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={}, future=True
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql+psycopg2://postgres:sTr0ngPass1234@localhost:5432/cloudlevel"
 )
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={}, future=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
+
+# for async
+ASYNC_SQLALCHEMY_DATABASE_URL = (
+    "postgresql+asyncpg://postgres:sTr0ngPass1234@localhost:5432/cloudlevel"
+)
+async_engine = create_async_engine(ASYNC_SQLALCHEMY_DATABASE_URL)
+AsyncSessionLocal = sessionmaker(
+    async_engine, class_=AsyncSession, expire_on_commit=False
+)
 
 Base = declarative_base()
 
@@ -22,3 +32,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+async def get_async_db():
+    async with AsyncSessionLocal() as async_db:
+        yield async_db
+        await async_db.commit()

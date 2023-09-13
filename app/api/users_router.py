@@ -9,6 +9,11 @@ from app.api.utils.courses_crud import get_user_courses
 from app.pydantic_schemas.user_schema import User, UserCreate
 from app.pydantic_schemas.course_schema import Course
 
+# for async
+from app.db.db_setup import get_async_db
+from app.api.utils.users_crud import get_user_async
+from sqlalchemy.ext.asyncio import AsyncSession
+
 router = fastapi.APIRouter()
 db_: Session = Depends(get_db)
 
@@ -19,13 +24,32 @@ async def read_users(skip: int = 0, limit: int = 100, db=db_):
     return users
 
 
+# for async ------------------------------------------------------------
+@router.get("/async_user/{user_id}", response_model=User, tags=["User"])
+async def read_async_users(
+    user_id: int, async_db: AsyncSession = Depends(get_async_db)
+):
+    db_user = await get_user_async(db=async_db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Requested user not found"
+        )
+    return db_user
+
+
+# ----------------------------------------------------------------------
+
+
 @router.post("/users", tags=["User"], response_model=User, status_code=201)
 async def create_new_user(user: UserCreate, db=db_):
-    db_user = get_user_by_email(db, email=user.email, )
+    db_user = get_user_by_email(
+        db,
+        email=user.email,
+    )
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Provided Email is not available for use."
+            detail=f"Provided Email is not available for use.",
         )
     return create_user(db, user=user)
 
@@ -36,15 +60,19 @@ async def read_user(user_id: int, db=db_):
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} doesn't exist."
+            detail=f"User with id {user_id} doesn't exist.",
         )
 
     return db_user
 
 
-@router.get("/users/{user_id}/courses", response_model=List[Course], tags=["User", "Courses"])
+@router.get(
+    "/users/{user_id}/courses", response_model=List[Course], tags=["User", "Courses"]
+)
 async def read_user_courses(user_id: int, db=db_):
     courses = get_user_courses(db=db, user_id=user_id)
     if not courses:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records for selected user")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No records for selected user"
+        )
     return courses

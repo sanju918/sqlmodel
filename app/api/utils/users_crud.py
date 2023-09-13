@@ -3,9 +3,19 @@ from sqlalchemy.orm import Session
 from app.db.models.user_model import User
 from app.pydantic_schemas.user_schema import UserCreate
 
+# for async
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
 
 def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
+
+
+async def get_user_async(db: AsyncSession, user_id: int):
+    query = select(User).where(User.id == user_id)
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
 
 
 def get_user_by_email(db: Session, email: str):
